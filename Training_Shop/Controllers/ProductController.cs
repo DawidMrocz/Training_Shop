@@ -2,6 +2,8 @@ using Dapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.SqlClient;
+using Training_Shop.Application.Common.Interfaces.Persistence;
+using Training_Shop.Domain.Entities;
 using Training_Shop.Dto;
 using Training_Shop.Models;
 
@@ -14,11 +16,13 @@ namespace Training_Shop.Controllers
 
         private readonly ILogger<ProductController> _logger;
         private readonly IConfiguration _config;
+        private readonly IProductRepository _productRepository;
 
-        public ProductController(ILogger<ProductController> logger, IConfiguration config)
+        public ProductController(ILogger<ProductController> logger, IConfiguration config, IProductRepository productRepository)
         {
             _logger = logger;
             _config = config;
+            _productRepository = productRepository;
         }
 
         [HttpGet]
@@ -35,22 +39,19 @@ namespace Training_Shop.Controllers
         [Route("/product/{productId}")]
         public async Task<ActionResult<Product>> GetProduct([FromRoute] int productId)
         {
-            using SqlConnection connection = new(_config.GetConnectionString("DefaultConnection"));
-            string sql = "SELECT productName,available,price FROM PRODUCTS WHERE ProductId = @id";
-            var parameters = new { id = productId };
-            Product product = await connection.QuerySingleOrDefaultAsync<Product>(sql, parameters);
-            if (product == null) return NotFound();
+            var product = await _productRepository.GetProduct(productId);
+
+            if (product is null) return NotFound();
+            
             return Ok(product);
         }
 
         [HttpGet]
         [Route("/Search")]
-        public async Task<ActionResult<Product>> SearchProduct([FromQuery] string phrase)
+        public async Task<ActionResult<IEnumerable<Product>>> SearchProduct([FromQuery] string phrase)
         {
-            using SqlConnection connection = new(_config.GetConnectionString("DefaultConnection"));
-            string sql = "SELECT productName,available,price FROM PRODUCTS WHERE PRODUCTNAME LIKE @SearchBy";
-            var parameters = new { SearchBy = "%" + phrase + "%" };
-            IEnumerable<Product> products = await connection.QueryAsync<Product>(sql, parameters);
+            IEnumerable<Product> products = await _productRepository.SearchProduct(phrase);
+
             return Ok(products);
         }
 

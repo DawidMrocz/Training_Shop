@@ -1,8 +1,10 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Data.SqlClient;
 using System.Runtime.CompilerServices;
-using Training_Shop.Models;
+using Training_Shop.Application.Services.Authentication;
+using Training_Shop.Contracts.Authentication;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -10,18 +12,61 @@ namespace Training_Shop.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class AuthenticationController : ControllerBase
     {
-        private readonly ILogger<UserController> _logger;
+        private readonly ILogger<AuthenticationController> _logger;
         private readonly IConfiguration _config;
-        public UserController
+        private readonly IAuthenticationService _authenticationService;
+        public AuthenticationController
             (
-                ILogger<UserController> logger,
-                IConfiguration config
+                ILogger<AuthenticationController> logger,
+                IConfiguration config,
+                IAuthenticationService authenticationService
             ) 
         {
             _logger = logger;
             _config = config;
+            _authenticationService = authenticationService;
+        }
+
+        [HttpPost]
+        [Route("/register")]
+        public ActionResult<AuthenticationResult> Register([FromBody]RegisterRequest request)
+        {
+            var authResult = _authenticationService.Register(
+                request.FirstName,
+                request.LastName,
+                request.Email,
+                request.Password);
+
+            var response = new AuthenticationResponse(
+                    authResult.Id,
+                    authResult.FirstName,
+                    authResult.LastName,
+                    authResult.Email,
+                    authResult.Password
+                );
+
+            return Ok(response);
+        }
+
+        [HttpPost]
+        [Route("/login")]
+        public IActionResult Login([FromBody]LoginRequest request)
+        {
+            var authResult = _authenticationService.Login(
+                request.Email,
+                request.Password);
+
+            var response = new AuthenticationResponse(
+                    authResult.Id,
+                    authResult.FirstName,
+                    authResult.LastName,
+                    authResult.Email,
+                    authResult.Password
+                );
+
+            return Ok(response);
         }
 
         // GET: api/<UserController>

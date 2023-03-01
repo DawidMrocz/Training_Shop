@@ -118,19 +118,6 @@ namespace Training_Shop.Controllers
                 return groupedPost;
             });
 
-            //var result = cart.GroupBy(p => p.CartId).Select(g => new CartDto()
-            //{
-            //    CartId = g.Key,
-            //    Quantity = g.First().Quantity,
-            //    Price = g.First().Price,
-            //    Name = g.First().User.Name,
-            //    CartItems = g.First().CartItems.Select(item => new CartItemDto()
-            //    {
-            //        CartItemId = item.CartItemId,
-            //        Quantity = item.Quantity,
-            //    }).ToList()
-            //});
-
             return Ok(result);
         }
 

@@ -1,6 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Training_Shop.Application.Common.Interfaces.Authentication;
+using Training_Shop.Application.Common.Interfaces.Persistence;
 using Training_Shop.Data;
-using Training_Shop.Services;
+using Training_Shop.Infrastructure.Authentication;
+using Training_Shop.Infrastructure.Persistence;
+using Training_Shop.Infrastructure.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +17,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.EnableSensitiveDataLogging();
 });
 
-builder.Services.AddScoped<IDapper, Dapperr>();
+builder.Services.AddScoped<Training_Shop.Application.Services.Authentication.IAuthenticationService, Training_Shop.Application.Services.Authentication.AuthenticationService>();
+builder.Services.AddSingleton<IJwtTokenGenerator,JwtTokenGenerator>();
+builder.Services.AddTransient<IProductRepository,ProductRepository>();
+builder.Services.AddScoped<DapperContext>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

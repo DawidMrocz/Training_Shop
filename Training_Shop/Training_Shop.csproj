@@ -18,4 +18,10 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
   </ItemGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\Training_Shop.Application\Training_Shop.Application.csproj" />
+		<ProjectReference Include="..\Training_Shop.Contracts\Training_Shop.Contracts.csproj" />
+		<ProjectReference Include="..\Training_Shop.Infrastructure\Training_Shop.Infrastructure.csproj" />
+	</ItemGroup>
+
 </Project>
